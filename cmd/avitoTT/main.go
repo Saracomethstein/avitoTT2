@@ -11,7 +11,10 @@ func main() {
 	e := echo.New()
 
 	//todo: handle the error!
-	c, _ := handlers.NewContainer()
+	c, err := handlers.NewContainer()
+	if err != nil {
+		e.Logger.Fatal("Error with initialize new container: ", err)
+	}
 
 	// Middleware
 	e.Use(middleware.Logger())

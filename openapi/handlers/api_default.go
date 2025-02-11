@@ -9,8 +9,23 @@ import (
 
 // ApiAuthPost - Аутентификация и получение JWT-токена. При первой аутентификации пользователь создается автоматически.
 func (c *Container) ApiAuthPost(ctx echo.Context) error {
-	return ctx.JSON(http.StatusOK, models.HelloWorld{
-		Message: "Hello World",
+	var req models.AuthRequest
+
+	if err := ctx.Bind(&req); err != nil {
+		return ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Errors: err.Error(),
+		})
+	}
+
+	response, err := c.AuthService.Authenticate(req)
+	if err != nil {
+		return ctx.JSON(http.StatusUnauthorized, models.ErrorResponse{
+			Errors: err.Error(),
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, models.AuthResponse{
+		Token: response.Message,
 	})
 }
 
@@ -21,7 +36,7 @@ func (c *Container) ApiBuyItemGet(ctx echo.Context) error {
 	})
 }
 
-// ApiInfoGet - Получить информацию о монетах, инвентаре и истории транзакций.
+// ApiInfoGet - Получить информацию о монетах, инвентаре и истории транзаsкций.
 func (c *Container) ApiInfoGet(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, models.HelloWorld{
 		Message: "Hello World",
