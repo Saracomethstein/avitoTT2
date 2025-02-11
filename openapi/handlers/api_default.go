@@ -31,21 +31,21 @@ func (c *Container) ApiAuthPost(ctx echo.Context) error {
 
 // ApiBuyItemGet - Купить предмет за монеты.
 func (c *Container) ApiBuyItemGet(ctx echo.Context) error {
-	return ctx.JSON(http.StatusOK, models.HelloWorld{
+	return ctx.JSON(http.StatusOK, models.CurrentRequest{
 		Message: "Hello World",
 	})
 }
 
 // ApiInfoGet - Получить информацию о монетах, инвентаре и истории транзаsкций.
 func (c *Container) ApiInfoGet(ctx echo.Context) error {
-	return ctx.JSON(http.StatusOK, models.HelloWorld{
+	return ctx.JSON(http.StatusOK, models.CurrentRequest{
 		Message: "Hello World",
 	})
 }
 
 // ApiSendCoinPost - Отправить монеты другому пользователю.
 func (c *Container) ApiSendCoinPost(ctx echo.Context) error {
-	return ctx.JSON(http.StatusOK, models.HelloWorld{
+	return ctx.JSON(http.StatusOK, models.CurrentRequest{
 		Message: "Hello World",
 	})
 }
