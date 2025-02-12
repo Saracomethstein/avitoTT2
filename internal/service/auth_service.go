@@ -15,7 +15,6 @@ type AuthService interface {
 type AuthServiceImpl struct{}
 
 func (s *AuthServiceImpl) Authenticate(req models.AuthRequest) (models.CurrentRequest, error) {
-	// check user creds in Postgres //
 	if req.Username != "admin" || req.Password != "password" {
 		return models.CurrentRequest{}, errors.New("Invalid credentials")
 	}
