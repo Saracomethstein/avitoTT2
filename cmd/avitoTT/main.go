@@ -2,6 +2,7 @@ package main
 
 import (
 	"avitoTT/internal/repository"
+	"avitoTT/internal/service"
 	"avitoTT/openapi/handlers"
 
 	"github.com/labstack/echo/v4"
@@ -12,13 +13,14 @@ import (
 func main() {
 	e := echo.New()
 
-	c, err := handlers.NewContainer()
+	db := repository.SetupDB()
+	defer db.Close()
+
+	serviceContainer := service.NewServiceContainer(db)
+	c, err := handlers.NewContainer(*serviceContainer)
 	if err != nil {
 		e.Logger.Fatal("Error with initialize new container: ", err)
 	}
-
-	db := repository.SetupDB()
-	defer db.Close()
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())

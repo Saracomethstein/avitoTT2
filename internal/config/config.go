@@ -14,12 +14,13 @@ type Congig struct {
 	DBUser              string
 	DBPassword          string
 	DBName              string
+	JWTSecretKey        string
 	DBConnectionRetries int
 	DBConnectionDelay   int
 }
 
 func init() {
-	if err := godotenv.Load(); err != nil {
+	if err := godotenv.Load("/app/.env"); err != nil {
 		log.Println("Error: No .env file found.")
 	}
 }
@@ -31,6 +32,7 @@ func New() *Congig {
 		DBUser:              getEnvStr("DB_USER", ""),
 		DBPassword:          getEnvStr("DB_PASSWORD", ""),
 		DBName:              getEnvStr("DB_NAME", ""),
+		JWTSecretKey:        getEnvStr("JWT-SECRET-KEY", ""),
 		DBConnectionRetries: getEnvInt("DB_CONNECTION_RETRIES", 5),
 		DBConnectionDelay:   getEnvInt("DB_CONNECTION_DELAY", 3),
 	}

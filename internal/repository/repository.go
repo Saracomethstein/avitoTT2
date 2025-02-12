@@ -2,13 +2,15 @@ package repository
 
 import (
 	"avitoTT/internal/config"
-	"database/sql"
+	"context"
 	"fmt"
 	"log"
 	"time"
+
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-func SetupDB() *sql.DB {
+func SetupDB() *pgxpool.Pool {
 	config := config.New()
 
 	psqlInfo := fmt.Sprintf(
@@ -16,17 +18,17 @@ func SetupDB() *sql.DB {
 		config.DBHost, config.DBPort, config.DBUser, config.DBPassword, config.DBName,
 	)
 
-	var db *sql.DB
+	var dbPool *pgxpool.Pool
 	var err error
 	for i := 0; i < config.DBConnectionRetries; i++ {
-		db, err = sql.Open("postgres", psqlInfo)
+		dbPool, err = pgxpool.Connect(context.Background(), psqlInfo)
 
 		if err == nil {
-			err = db.Ping()
+			err = dbPool.Ping(context.Background())
 
 			if err == nil {
 				log.Println("Successfully connected to the database.")
-				return db
+				return dbPool
 			}
 		}
 
