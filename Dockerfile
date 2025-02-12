@@ -1,13 +1,17 @@
-FROM golang:1.21 as builder
+FROM golang:1.21.3 AS builder
+
 WORKDIR /app
+
 COPY go.mod go.sum ./
 RUN go mod download
+
 COPY . .
-RUN go build -o main .
 
-FROM debian:bookworm-slim
-WORKDIR /app
-COPY --from=builder /app/main /app/main
-EXPOSE 8080
+RUN make build
 
-CMD ["/app/main"]
+FROM ubuntu:latest
+
+COPY --from=builder . .
+
+#CMD sleep infinity
+CMD ["/app/build/avito_app"]

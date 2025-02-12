@@ -1,24 +1,41 @@
--- Создание таблицы пользователей
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
-    password VARCHAR(256),
-    balance INTEGER DEFAULT 1000
+    password VARCHAR(256) NOT NULL,
+    balance INTEGER DEFAULT 1000 CHECK (balance >= 0)
 );
 
--- Создание таблицы транзакций
 CREATE TABLE IF NOT EXISTS transactions (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id),
-    amount INTEGER NOT NULL,
+    sender_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    receiver_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    amount INTEGER NOT NULL CHECK (amount > 0),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Добавление тестовых данных
-INSERT INTO users (username, password) VALUES
-    ('admin', crypt('password', gen_salt('bf'))),
-    ('user', crypt('pass', gen_salt('bf')))
-ON CONFLICT (username) DO NOTHING;
+CREATE TABLE IF NOT EXISTS merchandise (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    price INTEGER NOT NULL CHECK (price > 0)
+);
 
+CREATE TABLE IF NOT EXISTS purchases (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    merchandise_id INTEGER REFERENCES merchandise(id) ON DELETE CASCADE,
+    purchased_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 CREATE INDEX idx_users_username ON users(username);
+CREATE INDEX idx_transactions_sender ON transactions(sender_id);
+CREATE INDEX idx_transactions_receiver ON transactions(receiver_id);
+CREATE INDEX idx_purchases_user ON purchases(user_id);
+
+
+INSERT INTO users (username, password) VALUES
+    ('admin', crypt('password', gen_salt('bf'))),
+    ('user1', crypt('pass', gen_salt('bf'))),
+    ('user2', crypt('pass', gen_salt('bf')))
+ON CONFLICT (username) DO NOTHING;
