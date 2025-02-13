@@ -3,8 +3,10 @@ package repository
 import (
 	"avitoTT/openapi/models"
 	"context"
+	"errors"
 	"log"
 
+	"github.com/jackc/pgx"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -24,7 +26,7 @@ func (r *AuthRepositoryImpl) Authenticate(req models.AuthRequest) error {
 	err := r.DB.QueryRow(context.Background(), "SELECT password FROM users WHERE username = $1", req.Username).Scan(&hashedPassword)
 
 	if err != nil {
-		if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) || errors.As(err, &pgx.ErrNoRows) {
 			hashedPass, hashErr := hashPassword(req.Password)
 			if hashErr != nil {
 				return models.ErrUserCreationFailed
