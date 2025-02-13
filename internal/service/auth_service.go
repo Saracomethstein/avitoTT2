@@ -5,10 +5,14 @@ import (
 	"avitoTT/internal/repository"
 	"avitoTT/openapi/models"
 	"log"
+	"regexp"
 	"time"
 
 	"github.com/golang-jwt/jwt"
 )
+
+var UsernameRegex = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
+var PasswordRegex = regexp.MustCompile(`^[a-zA-Z0-9!@#$%^&*()_+\-=]+$`)
 
 type AuthService interface {
 	Authenticate(req models.AuthRequest) (models.CurrentRequest, error)
@@ -24,6 +28,10 @@ func NewAuthService(repo repository.AuthRepositoryImpl) *AuthServiceImpl {
 
 func (s *AuthServiceImpl) Authenticate(req models.AuthRequest) (models.AuthResponse, error) {
 	log.Println("Service: Authenticate")
+
+	if !UsernameRegex.MatchString(req.Username) || !PasswordRegex.MatchString(req.Password) {
+		return models.AuthResponse{}, models.ErrInvalidCredentials
+	}
 
 	err := s.AuthRepository.Authenticate(req)
 	if err != nil {

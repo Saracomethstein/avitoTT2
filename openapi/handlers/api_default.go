@@ -20,6 +20,12 @@ func (c *Container) ApiAuthPost(ctx echo.Context) error {
 		})
 	}
 
+	if err := ctx.Validate(req); err != nil {
+		return ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Errors: "Username and password are required",
+		})
+	}
+
 	response, err := c.AuthService.Authenticate(req)
 	if err != nil {
 		switch {

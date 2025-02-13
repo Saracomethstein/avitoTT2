@@ -1,10 +1,6 @@
 package models
 
 type AuthRequest struct {
-
-	// Имя пользователя для аутентификации.
-	Username string `json:"username"`
-
-	// Пароль для аутентификации.
-	Password string `json:"password"`
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required"`
 }

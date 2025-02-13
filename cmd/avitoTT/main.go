@@ -5,13 +5,23 @@ import (
 	"avitoTT/internal/service"
 	"avitoTT/openapi/handlers"
 
+	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	_ "github.com/lib/pq"
 )
 
+type CustomValidator struct {
+	validator *validator.Validate
+}
+
+func (cv *CustomValidator) Validate(i interface{}) error {
+	return cv.validator.Struct(i)
+}
+
 func main() {
 	e := echo.New()
+	e.Validator = &CustomValidator{validator: validator.New()}
 
 	db := repository.SetupDB()
 	defer db.Close()
