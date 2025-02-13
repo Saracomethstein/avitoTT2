@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS purchases (
     purchased_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_users_username ON users(username);
+CREATE UNIQUE INDEX idx_users_username ON users(username);
 CREATE INDEX idx_transactions_sender ON transactions(sender_id);
 CREATE INDEX idx_transactions_receiver ON transactions(receiver_id);
 CREATE INDEX idx_purchases_user ON purchases(user_id);

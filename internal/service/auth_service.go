@@ -4,7 +4,7 @@ import (
 	"avitoTT/internal/config"
 	"avitoTT/internal/repository"
 	"avitoTT/openapi/models"
-	"errors"
+	"log"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -22,22 +22,19 @@ func NewAuthService(repo repository.AuthRepositoryImpl) *AuthServiceImpl {
 	return &AuthServiceImpl{AuthRepository: repo}
 }
 
-func (s *AuthServiceImpl) Authenticate(req models.AuthRequest) (models.CurrentRequest, error) {
-	if req.Username != "admin" || req.Password != "password" {
-		return models.CurrentRequest{}, errors.New("Invalid credentials")
-	}
+func (s *AuthServiceImpl) Authenticate(req models.AuthRequest) (models.AuthResponse, error) {
+	log.Println("Service: Authenticate")
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"username": req.Username,
-		"exp":      time.Now().Add(time.Hour * 72).Unix(),
-	})
-
-	tokenString, err := token.SignedString([]byte("secret"))
+	err := s.AuthRepository.Authenticate(req)
 	if err != nil {
-		return models.CurrentRequest{}, err
+		return models.AuthResponse{}, err
 	}
 
-	return models.CurrentRequest{Message: tokenString}, nil
+	tokenString, err := generateToken(req.Username)
+	if err != nil {
+		return models.AuthResponse{}, models.ErrDatabaseIssue
+	}
+	return models.AuthResponse{Token: tokenString}, nil
 }
 
 func generateToken(username string) (string, error) {
