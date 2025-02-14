@@ -128,14 +128,64 @@ func (c *Container) ApiInfoGet(ctx echo.Context) error {
 	}
 
 	return ctx.JSON(http.StatusOK, userInfo)
-
 }
 
 // ApiSendCoinPost - Отправить монеты другому пользователю.
 func (c *Container) ApiSendCoinPost(ctx echo.Context) error {
 	log.Println("Handlers: ApiSendCoinPost")
+	var req models.SendCoinRequest
 
-	return ctx.JSON(http.StatusOK, models.CurrentRequest{
-		Message: "Hello World",
-	})
+	token, err := service.ExtractTokenFromHeader(ctx)
+	if err != nil {
+		return ctx.JSON(http.StatusUnauthorized, models.ErrorResponse{
+			Errors: err.Error(),
+		})
+	}
+
+	username, err := service.ExtractUsernameFromToken(token)
+	if err != nil {
+		return ctx.JSON(http.StatusUnauthorized, models.ErrorResponse{
+			Errors: err.Error(),
+		})
+	}
+
+	if err := ctx.Bind(&req); err != nil {
+		return ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Errors: "Invalid request format: " + err.Error(),
+		})
+	}
+
+	if err := ctx.Validate(req); err != nil {
+		return ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Errors: "Username and amount are required",
+		})
+	}
+
+	if err := c.SendService.SendCoin(ctx.Request().Context(), req, username); err != nil {
+		switch {
+		case errors.Is(err, models.ErrBalance):
+			return ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+				Errors: "Insufficient balance",
+			})
+		case errors.Is(err, models.ErrSendHimself):
+			return ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+				Errors: "U can`t send coins to himself",
+			})
+		case errors.Is(err, models.ErrUserNotFound):
+			return ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+				Errors: "Sender or receiver not found",
+			})
+		case errors.Is(err, models.ErrDatabaseIssue):
+			return ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+				Errors: "Database error",
+			})
+
+		default:
+			return ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+				Errors: "Unknown server error",
+			})
+		}
+	}
+
+	return ctx.JSON(http.StatusOK, echo.Map{"message": "Send successful"})
 }
