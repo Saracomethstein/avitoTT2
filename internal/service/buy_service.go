@@ -3,6 +3,7 @@ package service
 import (
 	"avitoTT/internal/config"
 	"avitoTT/internal/repository"
+	"avitoTT/openapi/models"
 	"errors"
 	"fmt"
 	"log"
@@ -31,29 +32,32 @@ func (s *BuyServiceImpl) BuyItem(username, items string) error {
 
 	price, merchID, err := s.BuyRepository.GetMerchPrice(items)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return fmt.Errorf("merch item not found")
+		if errors.Is(err, pgx.ErrNoRows) || errors.As(err, &pgx.ErrNoRows) {
+			return models.ErrInvalidCredentials
 		}
-		return err
+		return models.ErrDatabaseIssue
 	}
 
 	userID, err := s.BuyRepository.GetUserID(username)
 	if err != nil {
-		return err
+		if errors.Is(err, pgx.ErrNoRows) || errors.As(err, &pgx.ErrNoRows) {
+			return models.ErrInvalidCredentials
+		}
+		return models.ErrDatabaseIssue
 	}
 
 	balance, err := s.BuyRepository.GetUserBalance(userID)
 	if err != nil {
-		return err
+		return models.ErrDatabaseIssue
 	}
 
 	if balance < price {
-		return fmt.Errorf("not enough coins to buy %s", items)
+		return models.ErrNotEnoughCoins
 	}
 
 	err = s.BuyRepository.MakePurchase(userID, merchID, price)
 	if err != nil {
-		return err
+		return models.ErrDatabaseIssue
 	}
 
 	return nil
@@ -62,11 +66,11 @@ func (s *BuyServiceImpl) BuyItem(username, items string) error {
 func (c *BuyServiceImpl) ExtractTokenFromHeader(ctx echo.Context) (string, error) {
 	authHeader := ctx.Request().Header.Get("Authorization")
 	if authHeader == "" {
-		return "", fmt.Errorf("authorization header is missing")
+		return "", models.ErrMissingToken
 	}
 
 	if !strings.HasPrefix(authHeader, "Bearer ") {
-		return "", fmt.Errorf("invalid authorization format")
+		return "", models.ErrInvalidTokenFormat
 	}
 
 	token := strings.TrimPrefix(authHeader, "Bearer ")
@@ -77,27 +81,27 @@ func (s *BuyServiceImpl) ExtractUsernameFromToken(tokenStr string) (string, erro
 	config := config.New()
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			log.Println("unexpected signing method")
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(config.JWTSecretKey), nil
 	})
+
 	if err != nil {
 		return "", fmt.Errorf("failed to parse token: %w", err)
 	}
 
 	if !token.Valid {
-		return "", errors.New("invalid token")
+		return "", models.ErrInvalidToken
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return "", errors.New("invalid token claims")
+		return "", models.ErrInvalidToken
 	}
 
 	username, ok := claims["username"].(string)
 	if !ok {
-		return "", errors.New("username not found in token")
+		return "", models.ErrInvalidToken
 	}
 
 	return username, nil

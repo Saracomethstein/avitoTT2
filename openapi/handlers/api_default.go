@@ -58,8 +58,8 @@ func (c *Container) ApiAuthPost(ctx echo.Context) error {
 func (c *Container) ApiBuyItemGet(ctx echo.Context) error {
 	log.Println("Handlers: ApiBuyItemGet")
 
-	items := ctx.Param("item")
-	if items == "" {
+	item := ctx.Param("item")
+	if item == "" {
 		return ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
 			Errors: "item parameter is required",
 		})
@@ -67,25 +67,34 @@ func (c *Container) ApiBuyItemGet(ctx echo.Context) error {
 
 	token, err := c.BuyService.ExtractTokenFromHeader(ctx)
 	if err != nil {
-		log.Println(err)
 		return ctx.JSON(http.StatusUnauthorized, models.ErrorResponse{
-			Errors: "Invalid or missing token",
+			Errors: err.Error(),
 		})
 	}
 
 	username, err := c.BuyService.ExtractUsernameFromToken(token)
 	if err != nil {
-		log.Println(err)
 		return ctx.JSON(http.StatusUnauthorized, models.ErrorResponse{
-			Errors: "Invalid or missing token",
+			Errors: err.Error(),
 		})
 	}
 
-	err = c.BuyService.BuyItem(username, items)
+	err = c.BuyService.BuyItem(username, item)
 	if err != nil {
-		return ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
-			Errors: err.Error(),
-		})
+		switch {
+		case errors.Is(err, models.ErrInvalidCredentials):
+			return ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+				Errors: "Invalid item",
+			})
+		case errors.Is(err, models.ErrDatabaseIssue):
+			return ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+				Errors: "Database error",
+			})
+		default:
+			return ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+				Errors: "Unknown server error",
+			})
+		}
 	}
 
 	return ctx.JSON(http.StatusOK, echo.Map{"message": "Purchase successful"})
