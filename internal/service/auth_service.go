@@ -15,7 +15,7 @@ var UsernameRegex = regexp.MustCompile(`^[a-zA-Z0-9_]+$`)
 var PasswordRegex = regexp.MustCompile(`^[a-zA-Z0-9!@#$%^&*()_+\-=]+$`)
 
 type AuthService interface {
-	Authenticate(req models.AuthRequest) (models.CurrentRequest, error)
+	Authenticate(req models.AuthRequest) (models.AuthResponse, error)
 }
 
 type AuthServiceImpl struct {

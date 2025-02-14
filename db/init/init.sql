@@ -32,7 +32,22 @@ CREATE UNIQUE INDEX idx_users_username ON users(username);
 CREATE INDEX idx_transactions_sender ON transactions(sender_id);
 CREATE INDEX idx_transactions_receiver ON transactions(receiver_id);
 CREATE INDEX idx_purchases_user ON purchases(user_id);
+CREATE INDEX idx_merchandise_id ON merchandise(id)
 
+
+
+-- Insert data --
+INSERT INTO merchandise (name, price) VALUES
+    ('t-shirt', 80),
+    ('cup', 20),
+    ('book', 50),
+    ('pen', 10),
+    ('powerbank', 200),
+    ('hoody', 300),
+    ('umbrella', 200),
+    ('socks', 10),
+    ('wallet', 50),
+    ('pink-hoody', 500);
 
 INSERT INTO users (username, password) VALUES
     ('admin', crypt('password', gen_salt('bf'))),

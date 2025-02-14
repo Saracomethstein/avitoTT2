@@ -56,13 +56,45 @@ func (c *Container) ApiAuthPost(ctx echo.Context) error {
 
 // ApiBuyItemGet - Купить предмет за монеты.
 func (c *Container) ApiBuyItemGet(ctx echo.Context) error {
-	return ctx.JSON(http.StatusOK, models.CurrentRequest{
-		Message: "Hello World",
-	})
+	log.Println("Handlers: ApiBuyItemGet")
+
+	items := ctx.Param("item")
+	if items == "" {
+		return ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Errors: "item parameter is required",
+		})
+	}
+
+	token, err := c.BuyService.ExtractTokenFromHeader(ctx)
+	if err != nil {
+		log.Println(err)
+		return ctx.JSON(http.StatusUnauthorized, models.ErrorResponse{
+			Errors: "Invalid or missing token",
+		})
+	}
+
+	username, err := c.BuyService.ExtractUsernameFromToken(token)
+	if err != nil {
+		log.Println(err)
+		return ctx.JSON(http.StatusUnauthorized, models.ErrorResponse{
+			Errors: "Invalid or missing token",
+		})
+	}
+
+	err = c.BuyService.BuyItem(username, items)
+	if err != nil {
+		return ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Errors: err.Error(),
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, echo.Map{"message": "Purchase successful"})
 }
 
 // ApiInfoGet - Получить информацию о монетах, инвентаре и истории транзаsкций.
 func (c *Container) ApiInfoGet(ctx echo.Context) error {
+	log.Println("Handlers: ApiInfoGet")
+
 	return ctx.JSON(http.StatusOK, models.CurrentRequest{
 		Message: "Hello World",
 	})
@@ -70,6 +102,8 @@ func (c *Container) ApiInfoGet(ctx echo.Context) error {
 
 // ApiSendCoinPost - Отправить монеты другому пользователю.
 func (c *Container) ApiSendCoinPost(ctx echo.Context) error {
+	log.Println("Handlers: ApiSendCoinPost")
+
 	return ctx.JSON(http.StatusOK, models.CurrentRequest{
 		Message: "Hello World",
 	})
