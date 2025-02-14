@@ -1,6 +1,10 @@
 package service
 
-import "avitoTT/internal/repository"
+import (
+	"avitoTT/internal/repository"
+	"avitoTT/openapi/models"
+	"log"
+)
 
 type InfoService interface {
 }
@@ -11,4 +15,36 @@ type InfoServiceImpl struct {
 
 func NewInfoService(repo repository.InfoRepositoryImpl) *InfoServiceImpl {
 	return &InfoServiceImpl{InfoRepository: repo}
+}
+
+func (s *InfoServiceImpl) GetUserInfo(username string) (models.InfoResponse, error) {
+	log.Println("Service: GetUserInfo")
+
+	var response models.InfoResponse
+
+	userID, balance, err := s.InfoRepository.GetUserIDAndBalance(username)
+	if err != nil {
+		return models.InfoResponse{}, err
+	}
+	response.Coins = balance
+
+	receivedCoins, err := s.InfoRepository.GetReceivedCoins(userID)
+	if err != nil {
+		return models.InfoResponse{}, err
+	}
+	response.CoinHistory.Received = receivedCoins
+
+	sentCoins, err := s.InfoRepository.GetSentCoins(userID)
+	if err != nil {
+		return models.InfoResponse{}, err
+	}
+	response.CoinHistory.Sent = sentCoins
+
+	inventory, err := s.InfoRepository.GetUserInventory(userID)
+	if err != nil {
+		return models.InfoResponse{}, err
+	}
+	response.Inventory = inventory
+
+	return response, nil
 }

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"avitoTT/internal/service"
 	"avitoTT/openapi/models"
 	"errors"
 	"log"
@@ -65,14 +66,14 @@ func (c *Container) ApiBuyItemGet(ctx echo.Context) error {
 		})
 	}
 
-	token, err := c.BuyService.ExtractTokenFromHeader(ctx)
+	token, err := service.ExtractTokenFromHeader(ctx)
 	if err != nil {
 		return ctx.JSON(http.StatusUnauthorized, models.ErrorResponse{
 			Errors: err.Error(),
 		})
 	}
 
-	username, err := c.BuyService.ExtractUsernameFromToken(token)
+	username, err := service.ExtractUsernameFromToken(token)
 	if err != nil {
 		return ctx.JSON(http.StatusUnauthorized, models.ErrorResponse{
 			Errors: err.Error(),
@@ -104,9 +105,30 @@ func (c *Container) ApiBuyItemGet(ctx echo.Context) error {
 func (c *Container) ApiInfoGet(ctx echo.Context) error {
 	log.Println("Handlers: ApiInfoGet")
 
-	return ctx.JSON(http.StatusOK, models.CurrentRequest{
-		Message: "Hello World",
-	})
+	token, err := service.ExtractTokenFromHeader(ctx)
+	if err != nil {
+		return ctx.JSON(http.StatusUnauthorized, models.ErrorResponse{
+			Errors: err.Error(),
+		})
+	}
+
+	username, err := service.ExtractUsernameFromToken(token)
+	if err != nil {
+		return ctx.JSON(http.StatusUnauthorized, models.ErrorResponse{
+			Errors: err.Error(),
+		})
+	}
+
+	userInfo, err := c.InfoService.GetUserInfo(username)
+	if err != nil {
+		log.Println(err)
+		return ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
+			Errors: "Failed to retrieve user info",
+		})
+	}
+
+	return ctx.JSON(http.StatusOK, userInfo)
+
 }
 
 // ApiSendCoinPost - Отправить монеты другому пользователю.
