@@ -16,30 +16,30 @@ paths:
       security:
         - BearerAuth: []
       responses:
-        '200':
+        "200":
           description: Успешный ответ.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InfoResponse'
-        '400':
+                $ref: "#/components/schemas/InfoResponse"
+        "400":
           description: Неверный запрос.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
           description: Неавторизован.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Внутренняя ошибка сервера.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /api/sendCoin:
     post:
@@ -51,28 +51,28 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SendCoinRequest'
+              $ref: "#/components/schemas/SendCoinRequest"
       responses:
-        '200':
+        "200":
           description: Успешный ответ.
-        '400':
+        "400":
           description: Неверный запрос.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
           description: Неавторизован.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Внутренняя ошибка сервера.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /api/buy/{item}:
     get:
@@ -86,61 +86,61 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Успешный ответ.
-        '400':
+        "400":
           description: Неверный запрос.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
           description: Неавторизован.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Внутренняя ошибка сервера.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /api/auth:
     post:
-      summary: Аутентификация и получение JWT-токена. При первой аутентификации пользователь создается автоматически. 
+      summary: Аутентификация и получение JWT-токена. При первой аутентификации пользователь создается автоматически.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AuthRequest'
+              $ref: "#/components/schemas/AuthRequest"
       responses:
-        '200':
+        "200":
           description: Успешная аутентификация.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthResponse'
-        '400':
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
           description: Неверный запрос.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
           description: Неавторизован.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Внутренняя ошибка сервера.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
 components:
   securitySchemes:

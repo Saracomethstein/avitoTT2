@@ -13,5 +13,4 @@ FROM ubuntu:latest
 
 COPY --from=builder . .
 
-#CMD sleep infinity
 CMD ["/app/build/avito_app"]

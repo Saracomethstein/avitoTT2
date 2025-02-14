@@ -1,9 +1,9 @@
 package handlers
 
 import (
+	handle_errors "avitoTT/internal/errors"
 	"avitoTT/internal/service"
 	"avitoTT/openapi/models"
-	"errors"
 	"log"
 	"net/http"
 
@@ -29,25 +29,8 @@ func (c *Container) ApiAuthPost(ctx echo.Context) error {
 
 	response, err := c.AuthService.Authenticate(req)
 	if err != nil {
-		switch {
-		case errors.Is(err, models.ErrInvalidCredentials):
-			return ctx.JSON(http.StatusUnauthorized, models.ErrorResponse{
-				Errors: "Invalid username or password",
-			})
-		case errors.Is(err, models.ErrUserCreationFailed):
-			return ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
-				Errors: "Failed to create user",
-			})
-		case errors.Is(err, models.ErrDatabaseIssue):
-			return ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
-				Errors: "Database error",
-			})
-		default:
-			log.Println("Unhandled error:", err)
-			return ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
-				Errors: "Unknown server error",
-			})
-		}
+		status, errResp := handle_errors.Error(err, "Unknown server error")
+		return ctx.JSON(status, errResp)
 	}
 
 	return ctx.JSON(http.StatusOK, models.AuthResponse{
@@ -82,20 +65,8 @@ func (c *Container) ApiBuyItemGet(ctx echo.Context) error {
 
 	err = c.BuyService.BuyItem(username, item)
 	if err != nil {
-		switch {
-		case errors.Is(err, models.ErrInvalidCredentials):
-			return ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-				Errors: "Invalid item",
-			})
-		case errors.Is(err, models.ErrDatabaseIssue):
-			return ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
-				Errors: "Database error",
-			})
-		default:
-			return ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
-				Errors: "Unknown server error",
-			})
-		}
+		status, errResp := handle_errors.Error(err, "Unknown server error")
+		return ctx.JSON(status, errResp)
 	}
 
 	return ctx.JSON(http.StatusOK, echo.Map{"message": "Purchase successful"})
@@ -121,10 +92,8 @@ func (c *Container) ApiInfoGet(ctx echo.Context) error {
 
 	userInfo, err := c.InfoService.GetUserInfo(username)
 	if err != nil {
-		log.Println(err)
-		return ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
-			Errors: "Failed to retrieve user info",
-		})
+		status, errResp := handle_errors.Error(err, "Unknown server error")
+		return ctx.JSON(status, errResp)
 	}
 
 	return ctx.JSON(http.StatusOK, userInfo)
@@ -161,30 +130,10 @@ func (c *Container) ApiSendCoinPost(ctx echo.Context) error {
 		})
 	}
 
-	if err := c.SendService.SendCoin(ctx.Request().Context(), req, username); err != nil {
-		switch {
-		case errors.Is(err, models.ErrBalance):
-			return ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-				Errors: "Insufficient balance",
-			})
-		case errors.Is(err, models.ErrSendHimself):
-			return ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-				Errors: "U can`t send coins to himself",
-			})
-		case errors.Is(err, models.ErrUserNotFound):
-			return ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
-				Errors: "Sender or receiver not found",
-			})
-		case errors.Is(err, models.ErrDatabaseIssue):
-			return ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
-				Errors: "Database error",
-			})
-
-		default:
-			return ctx.JSON(http.StatusInternalServerError, models.ErrorResponse{
-				Errors: "Unknown server error",
-			})
-		}
+	err = c.SendService.SendCoin(ctx.Request().Context(), req, username)
+	if err != nil {
+		status, errResp := handle_errors.Error(err, "Unknown server error")
+		return ctx.JSON(status, errResp)
 	}
 
 	return ctx.JSON(http.StatusOK, echo.Map{"message": "Send successful"})
