@@ -33,14 +33,13 @@ func NewAuthService(repo repository.AuthRepositoryImpl, redisRepo repository.Red
 func (s *AuthServiceImpl) Authenticate(req models.AuthRequest) (models.AuthResponse, error) {
 	log.Println("Service: Authenticate")
 
-	if token, err := s.RedisRepository.GetCachedToken(req.Username); err == nil {
-		log.Println("Токен найден в Redis, используем его")
-		return models.AuthResponse{Token: token}, nil
-	}
-
 	err := s.AuthRepository.Authenticate(req)
 	if err != nil {
 		return models.AuthResponse{}, err
+	}
+
+	if token, err := s.RedisRepository.GetCachedToken(req.Username); err == nil {
+		return models.AuthResponse{Token: token}, nil
 	}
 
 	tokenString, err := generateToken(req.Username)
@@ -49,7 +48,6 @@ func (s *AuthServiceImpl) Authenticate(req models.AuthRequest) (models.AuthRespo
 	}
 
 	if err := s.RedisRepository.CacheToken(req.Username, tokenString); err != nil {
-		log.Printf("Ошибка кеширования токена: %v", err)
 		return models.AuthResponse{}, models.ErrDatabaseIssue
 	}
 

@@ -29,6 +29,7 @@ func (c *Container) ApiAuthPost(ctx echo.Context) error {
 
 	response, err := c.AuthService.Authenticate(req)
 	if err != nil {
+		log.Println(err)
 		status, errResp := handle_errors.Error(err, "Unknown server error")
 		return ctx.JSON(status, errResp)
 	}
