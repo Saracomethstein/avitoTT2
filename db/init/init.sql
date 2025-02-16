@@ -1,5 +1,3 @@
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
-
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
@@ -34,7 +32,6 @@ CREATE INDEX idx_transactions_receiver ON transactions(receiver_id);
 CREATE INDEX idx_purchases_user ON purchases(user_id);
 CREATE INDEX idx_merchandise_id ON merchandise(id);
 
--- Insert data --
 INSERT INTO merchandise (name, price) VALUES
     ('t-shirt', 80),
     ('cup', 20),

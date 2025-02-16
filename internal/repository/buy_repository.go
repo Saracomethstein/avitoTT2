@@ -23,20 +23,13 @@ func (r *BuyRepositoryImpl) GetMerchPrice(itemName string) (int, int, error) {
 	return price, merchID, err
 }
 
-func (r *BuyRepositoryImpl) GetUserID(username string) (int, error) {
+func (r *BuyRepositoryImpl) GetUserIDAndBalance(username string) (int, int, error) {
 	var userID int
-	err := r.DB.QueryRow(context.Background(),
-		"SELECT id FROM users WHERE username = $1", username).Scan(&userID)
-
-	return userID, err
-}
-
-func (r *BuyRepositoryImpl) GetUserBalance(userID int) (int, error) {
 	var balance int
 	err := r.DB.QueryRow(context.Background(),
-		"SELECT balance FROM users WHERE id = $1", userID).Scan(&balance)
+		"SELECT id, balance FROM users WHERE username = $1", username).Scan(&userID, &balance)
 
-	return balance, err
+	return userID, balance, err
 }
 
 func (r *BuyRepositoryImpl) MakePurchase(userID, merchID, price int) error {

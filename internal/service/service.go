@@ -24,9 +24,10 @@ func NewServiceContainer(db *pgxpool.Pool) *ServiceContainer {
 	buyRepo := repository.NewBuyRepository(db)
 	infoRepo := repository.NewInfoRepository(db)
 	sendRepo := repository.NewSendRepository(db)
+	redisRepo := repository.NewRedisRepository()
 
 	return &ServiceContainer{
-		AuthService: NewAuthService(*authRepo),
+		AuthService: NewAuthService(*authRepo, *redisRepo),
 		BuyService:  NewBuyService(*buyRepo),
 		InfoService: NewInfoService(*infoRepo),
 		SendService: NewSendService(*sendRepo),

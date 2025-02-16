@@ -20,7 +20,7 @@ var (
 )
 
 var errorMapping = map[error]int{
-	ErrInvalidCredentials: http.StatusUnauthorized,
+	ErrInvalidCredentials: http.StatusBadRequest,
 	ErrUserCreationFailed: http.StatusInternalServerError,
 	ErrDatabaseIssue:      http.StatusInternalServerError,
 	ErrBalance:            http.StatusBadRequest,
@@ -30,7 +30,7 @@ var errorMapping = map[error]int{
 
 func Error(err error, defaultError string) (int, models.ErrorResponse) {
 	for appErr, status := range errorMapping {
-		if errors.Is(err, appErr) {
+		if errors.As(err, &appErr) || errors.Is(err, appErr) {
 			return status, models.ErrorResponse{Errors: appErr.Error()}
 		}
 	}

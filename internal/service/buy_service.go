@@ -32,16 +32,11 @@ func (s *BuyServiceImpl) BuyItem(username, items string) error {
 		return models.ErrDatabaseIssue
 	}
 
-	userID, err := s.BuyRepository.GetUserID(username)
+	userID, balance, err := s.BuyRepository.GetUserIDAndBalance(username)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) || errors.As(err, &pgx.ErrNoRows) {
 			return models.ErrInvalidCredentials
 		}
-		return models.ErrDatabaseIssue
-	}
-
-	balance, err := s.BuyRepository.GetUserBalance(userID)
-	if err != nil {
 		return models.ErrDatabaseIssue
 	}
 
