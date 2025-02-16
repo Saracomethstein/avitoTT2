@@ -1,0 +1,7 @@
+./tests
+./docs
+./internal/errors/errors_test.go
+./internal/repository/auth_repository_test.go
+./internal/repository/send_repository_test.go
+./internal/repository/info_repository_test.go
+./internal/repository/buy_repository_test.go

@@ -3,7 +3,6 @@ package handle_errors
 import (
 	"avitoTT/openapi/models"
 	"errors"
-	"log"
 	"net/http"
 )
 
@@ -30,17 +29,13 @@ var errorMapping = map[error]int{
 }
 
 func Error(err error, defaultError string) (int, models.ErrorResponse) {
+	errMsg := err.Error()
+
 	for appErr, status := range errorMapping {
-		if errors.As(err, &appErr) {
-			log.Printf("Matched error: %v", appErr)
-			return status, models.ErrorResponse{Errors: appErr.Error()}
-		}
-		if errors.Is(err, appErr) {
-			log.Printf("Matched error: %v", appErr)
+		if errMsg == appErr.Error() {
 			return status, models.ErrorResponse{Errors: appErr.Error()}
 		}
 	}
 
-	log.Printf("Default error: %v", err)
 	return http.StatusInternalServerError, models.ErrorResponse{Errors: defaultError}
 }
