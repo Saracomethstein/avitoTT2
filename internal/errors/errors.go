@@ -29,13 +29,10 @@ var errorMapping = map[error]int{
 }
 
 func Error(err error, defaultError string) (int, models.ErrorResponse) {
-	errMsg := err.Error()
-
 	for appErr, status := range errorMapping {
-		if errMsg == appErr.Error() {
+		if errors.Is(err, appErr) {
 			return status, models.ErrorResponse{Errors: appErr.Error()}
 		}
 	}
-
 	return http.StatusInternalServerError, models.ErrorResponse{Errors: defaultError}
 }

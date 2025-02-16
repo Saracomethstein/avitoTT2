@@ -2,6 +2,7 @@ package service
 
 import (
 	"avitoTT/internal/config"
+	handle_errors "avitoTT/internal/errors"
 	"avitoTT/internal/repository"
 	"avitoTT/openapi/models"
 	"log"
@@ -44,11 +45,11 @@ func (s *AuthServiceImpl) Authenticate(req models.AuthRequest) (models.AuthRespo
 
 	tokenString, err := generateToken(req.Username)
 	if err != nil {
-		return models.AuthResponse{}, models.ErrDatabaseIssue
+		return models.AuthResponse{}, handle_errors.ErrDatabaseIssue
 	}
 
 	if err := s.RedisRepository.CacheToken(req.Username, tokenString); err != nil {
-		return models.AuthResponse{}, models.ErrDatabaseIssue
+		return models.AuthResponse{}, handle_errors.ErrDatabaseIssue
 	}
 
 	return models.AuthResponse{Token: tokenString}, nil

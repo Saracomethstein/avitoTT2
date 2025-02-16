@@ -2,7 +2,6 @@ package handle_errors_test
 
 import (
 	handle_errors "avitoTT/internal/errors"
-	"avitoTT/openapi/models"
 	"errors"
 	"net/http"
 	"testing"
@@ -18,31 +17,31 @@ func TestError(t *testing.T) {
 	}{
 		{
 			name:         "Invalid Credentials",
-			inputError:   models.ErrInvalidCredentials,
+			inputError:   handle_errors.ErrInvalidCredentials,
 			defaultError: "internal server error",
 			expectedCode: http.StatusBadRequest,
-			expectedMsg:  models.ErrInvalidCredentials.Error(),
+			expectedMsg:  handle_errors.ErrInvalidCredentials.Error(),
 		},
 		{
 			name:         "User Creation Failed",
-			inputError:   models.ErrUserCreationFailed,
+			inputError:   handle_errors.ErrUserCreationFailed,
 			defaultError: "internal server error",
 			expectedCode: http.StatusBadRequest,
-			expectedMsg:  models.ErrUserCreationFailed.Error(),
+			expectedMsg:  handle_errors.ErrUserCreationFailed.Error(),
 		},
 		{
 			name:         "Database Issue",
-			inputError:   models.ErrDatabaseIssue,
+			inputError:   handle_errors.ErrDatabaseIssue,
 			defaultError: "internal server error",
 			expectedCode: http.StatusInternalServerError,
-			expectedMsg:  models.ErrDatabaseIssue.Error(),
+			expectedMsg:  handle_errors.ErrDatabaseIssue.Error(),
 		},
 		{
 			name:         "User Not Found",
-			inputError:   models.ErrUserNotFound,
+			inputError:   handle_errors.ErrUserNotFound,
 			defaultError: "internal server error",
 			expectedCode: http.StatusBadRequest,
-			expectedMsg:  models.ErrUserNotFound.Error(),
+			expectedMsg:  handle_errors.ErrUserNotFound.Error(),
 		},
 		{
 			name:         "Unknown Error",
@@ -53,17 +52,17 @@ func TestError(t *testing.T) {
 		},
 		{
 			name:         "Wrapped Error (Database Issue)",
-			inputError:   models.ErrDatabaseIssue,
+			inputError:   handle_errors.ErrDatabaseIssue,
 			defaultError: "internal server error",
 			expectedCode: http.StatusInternalServerError,
-			expectedMsg:  models.ErrDatabaseIssue.Error(),
+			expectedMsg:  handle_errors.ErrDatabaseIssue.Error(),
 		},
 		{
 			name:         "Wrapped Error (User Not Found)",
-			inputError:   models.ErrUserNotFound,
+			inputError:   handle_errors.ErrUserNotFound,
 			defaultError: "internal server error",
 			expectedCode: http.StatusBadRequest,
-			expectedMsg:  models.ErrUserNotFound.Error(),
+			expectedMsg:  handle_errors.ErrUserNotFound.Error(),
 		},
 	}
 

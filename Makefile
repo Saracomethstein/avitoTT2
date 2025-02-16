@@ -34,3 +34,12 @@ docker-up: docker-build
 docker-down:
 	@echo "==> Stopping Docker containers..."
 	docker compose down
+
+postman_test:
+	newman run tests/postman_collection_test/AvitoTT\ \(auth\).postman_collection.json 
+	newman run tests/postman_collection_test/AvitoTT\ \(send\ coins\).postman_collection.json 
+	newman run tests/postman_collection_test/AvitoTT\ \(info\).postman_collection.json   
+	newman run tests/postman_collection_test/AvitoTT\ \(buy\ item\).postman_collection.json   
+
+load_test:
+	k6 run tests/k6_test/test.js

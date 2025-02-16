@@ -7,6 +7,8 @@ import (
 	"log"
 	"time"
 
+	handle_errors "avitoTT/internal/errors"
+
 	"github.com/jackc/pgx"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
@@ -37,16 +39,16 @@ func (r *AuthRepositoryImpl) Authenticate(req models.AuthRequest) error {
 
 			if err != nil {
 				log.Println("Failed insert new user")
-				return models.ErrDatabaseIssue
+				return handle_errors.ErrDatabaseIssue
 			}
 			return nil
 		}
 		log.Println("Failed data base")
-		return models.ErrDatabaseIssue
+		return handle_errors.ErrDatabaseIssue
 	}
 
 	if password != req.Password {
-		return models.ErrInvalidCredentials
+		return handle_errors.ErrInvalidCredentials
 	}
 
 	return nil

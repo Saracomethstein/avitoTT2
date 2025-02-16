@@ -2,8 +2,8 @@ package service
 
 import (
 	"avitoTT/internal/config"
+	handle_errors "avitoTT/internal/errors"
 	"avitoTT/internal/repository"
-	"avitoTT/openapi/models"
 	"fmt"
 	"strings"
 
@@ -37,11 +37,11 @@ func NewServiceContainer(db *pgxpool.Pool) *ServiceContainer {
 func ExtractTokenFromHeader(ctx echo.Context) (string, error) {
 	authHeader := ctx.Request().Header.Get("Authorization")
 	if authHeader == "" {
-		return "", models.ErrMissingToken
+		return "", handle_errors.ErrMissingToken
 	}
 
 	if !strings.HasPrefix(authHeader, "Bearer ") {
-		return "", models.ErrInvalidTokenFormat
+		return "", handle_errors.ErrInvalidTokenFormat
 	}
 
 	token := strings.TrimPrefix(authHeader, "Bearer ")
@@ -62,17 +62,17 @@ func ExtractUsernameFromToken(tokenStr string) (string, error) {
 	}
 
 	if !token.Valid {
-		return "", models.ErrInvalidToken
+		return "", handle_errors.ErrInvalidToken
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return "", models.ErrInvalidToken
+		return "", handle_errors.ErrInvalidToken
 	}
 
 	username, ok := claims["username"].(string)
 	if !ok {
-		return "", models.ErrInvalidToken
+		return "", handle_errors.ErrInvalidToken
 	}
 
 	return username, nil

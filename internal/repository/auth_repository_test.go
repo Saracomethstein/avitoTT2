@@ -1,6 +1,7 @@
 package repository_test
 
 import (
+	handle_errors "avitoTT/internal/errors"
 	"avitoTT/internal/repository"
 	"avitoTT/openapi/models"
 	"context"
@@ -80,8 +81,8 @@ func TestAuthenticate(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}
-	if err != models.ErrInvalidCredentials {
-		t.Fatalf("expected %v, got %v", models.ErrInvalidCredentials, err)
+	if err != handle_errors.ErrInvalidCredentials {
+		t.Fatalf("expected %v, got %v", handle_errors.ErrInvalidCredentials, err)
 	}
 
 	authRequest.Username = "test_user_001"

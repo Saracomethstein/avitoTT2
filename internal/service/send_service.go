@@ -1,6 +1,7 @@
 package service
 
 import (
+	handle_errors "avitoTT/internal/errors"
 	"avitoTT/internal/repository"
 	"avitoTT/openapi/models"
 	"context"
@@ -22,21 +23,21 @@ func (s *SendServiceImpl) SendCoin(ctx context.Context, req models.SendCoinReque
 	log.Println("Service: SendCoin")
 
 	if req.ToUser == username {
-		return models.ErrSendHimself
+		return handle_errors.ErrSendHimself
 	}
 
 	senderID, senderBalance, err := s.SendRepository.GetUserIDAndBalance(username)
 	if err != nil {
-		return models.ErrUserNotFound
+		return handle_errors.ErrUserNotFound
 	}
 
 	receiverID, receiverBalance, err := s.SendRepository.GetUserIDAndBalance(req.ToUser)
 	if err != nil {
-		return models.ErrUserNotFound
+		return handle_errors.ErrUserNotFound
 	}
 
 	if senderBalance < req.Amount {
-		return models.ErrBalance
+		return handle_errors.ErrBalance
 	}
 
 	newSenderBalance := senderBalance - req.Amount
@@ -48,15 +49,15 @@ func (s *SendServiceImpl) SendCoin(ctx context.Context, req models.SendCoinReque
 	defer tx.Rollback(ctx)
 
 	if err := s.SendRepository.UpdateUserBalance(senderID, newSenderBalance); err != nil {
-		return models.ErrDatabaseIssue
+		return handle_errors.ErrDatabaseIssue
 	}
 
 	if err := s.SendRepository.UpdateUserBalance(receiverID, receiverBalance+req.Amount); err != nil {
-		return models.ErrDatabaseIssue
+		return handle_errors.ErrDatabaseIssue
 	}
 
 	if err := s.SendRepository.CreateTransaction(senderID, receiverID, req.Amount); err != nil {
-		return models.ErrDatabaseIssue
+		return handle_errors.ErrDatabaseIssue
 	}
 
 	return tx.Commit(ctx)

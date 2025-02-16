@@ -1,8 +1,8 @@
 package service
 
 import (
+	handle_errors "avitoTT/internal/errors"
 	"avitoTT/internal/repository"
-	"avitoTT/openapi/models"
 	"errors"
 	"log"
 
@@ -27,26 +27,26 @@ func (s *BuyServiceImpl) BuyItem(username, items string) error {
 	price, merchID, err := s.BuyRepository.GetMerchPrice(items)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) || errors.As(err, &pgx.ErrNoRows) {
-			return models.ErrInvalidCredentials
+			return handle_errors.ErrInvalidCredentials
 		}
-		return models.ErrDatabaseIssue
+		return handle_errors.ErrDatabaseIssue
 	}
 
 	userID, balance, err := s.BuyRepository.GetUserIDAndBalance(username)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) || errors.As(err, &pgx.ErrNoRows) {
-			return models.ErrInvalidCredentials
+			return handle_errors.ErrInvalidCredentials
 		}
-		return models.ErrDatabaseIssue
+		return handle_errors.ErrDatabaseIssue
 	}
 
 	if balance < price {
-		return models.ErrNotEnoughCoins
+		return handle_errors.ErrNotEnoughCoins
 	}
 
 	err = s.BuyRepository.MakePurchase(userID, merchID, price)
 	if err != nil {
-		return models.ErrDatabaseIssue
+		return handle_errors.ErrDatabaseIssue
 	}
 
 	return nil
