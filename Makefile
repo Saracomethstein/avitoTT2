@@ -49,4 +49,4 @@ postman_test:
 	newman run tests/postman_collection_test/AvitoTT\ \(buy\ item\).postman_collection.json   
 
 load_test:
-	k6 run tests/k6_test/test.jsci
+	k6 run tests/k6_test/test.js

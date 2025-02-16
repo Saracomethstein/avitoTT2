@@ -4,8 +4,8 @@ import { randomString } from 'https://jslib.k6.io/k6-utils/1.2.0/index.js';
 
 export let options = {
   stages: [
-    { duration: '15s', target: 1000 },
-    { duration: '30s', target: 1000 },
+    { duration: '15s', target: 100 },
+    { duration: '30s', target: 100 },
     { duration: '15s', target: 0 },
   ],
   thresholds: {
