@@ -35,6 +35,13 @@ docker-down:
 	@echo "==> Stopping Docker containers..."
 	docker compose down
 
+test:
+	go test internal/repository/auth_repository_test.go
+	go test internal/repository/send_repository_test.go
+	go test internal/repository/buy_repository_test.go
+	go test internal/repository/info_repository_test.go
+	go test internal/errors/errors_test.go
+
 postman_test:
 	newman run tests/postman_collection_test/AvitoTT\ \(auth\).postman_collection.json 
 	newman run tests/postman_collection_test/AvitoTT\ \(send\ coins\).postman_collection.json 
@@ -42,4 +49,4 @@ postman_test:
 	newman run tests/postman_collection_test/AvitoTT\ \(buy\ item\).postman_collection.json   
 
 load_test:
-	k6 run tests/k6_test/test.js
+	k6 run tests/k6_test/test.jsci

@@ -1,0 +1,26 @@
+run:
+  timeout: 5m
+
+linters-settings:
+  govet:
+    check-shadowing: true
+  golint:
+    min-confidence: 0.8
+
+linters:
+  enable:
+    - errcheck
+    - gosimple
+    - unused
+    - staticcheck
+    - gofmt
+    - govet
+    - gocyclo
+
+issues:
+  max-issues-per-linter: 10
+  max-same-issues: 3
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - errcheck
