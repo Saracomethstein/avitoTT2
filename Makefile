@@ -25,7 +25,7 @@ clean:
 
 docker-build:
 	@echo "==> Building Docker containers..."
-	docker compose build
+	docker compose build --no-cache
 
 docker-up: docker-build
 	@echo "==> Starting Docker containers..."

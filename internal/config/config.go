@@ -20,7 +20,7 @@ type Congig struct {
 }
 
 func init() {
-	if err := godotenv.Load("./app/.env"); err != nil {
+	if err := godotenv.Load(".env"); err != nil {
 		log.Println(err)
 	}
 }

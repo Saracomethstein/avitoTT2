@@ -1,13 +1,11 @@
 package repository
 
 import (
+	handle_errors "avitoTT/internal/errors"
 	"avitoTT/openapi/models"
 	"context"
 	"errors"
-	"log"
 	"time"
-
-	handle_errors "avitoTT/internal/errors"
 
 	"github.com/jackc/pgx"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -22,7 +20,6 @@ func NewAuthRepository(db *pgxpool.Pool) *AuthRepositoryImpl {
 }
 
 func (r *AuthRepositoryImpl) Authenticate(req models.AuthRequest) error {
-	log.Println("Repository: Authenticate")
 	var password string
 
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
@@ -31,19 +28,17 @@ func (r *AuthRepositoryImpl) Authenticate(req models.AuthRequest) error {
 
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) || errors.As(err, &pgx.ErrNoRows) {
-			_, err = r.DB.Exec(context.Background(), `
+			_, err = r.DB.Exec(ctx, `
     INSERT INTO users (username, password)
     VALUES ($1, $2)
     ON CONFLICT (username) DO NOTHING
 `, req.Username, req.Password)
 
 			if err != nil {
-				log.Println("Failed insert new user")
 				return handle_errors.ErrDatabaseIssue
 			}
 			return nil
 		}
-		log.Println("Failed data base")
 		return handle_errors.ErrDatabaseIssue
 	}
 

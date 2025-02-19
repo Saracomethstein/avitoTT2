@@ -18,10 +18,18 @@ func SetupDB() *pgxpool.Pool {
 		config.DBHost, config.DBPort, config.DBUser, config.DBPassword, config.DBName,
 	)
 
+	psqCfg, err := pgxpool.ParseConfig(psqlInfo)
+	if err != nil {
+		log.Fatalf("Unable to parse database configuration: %v", err)
+	}
+
+	psqCfg.MaxConns = 100
+	psqCfg.MinConns = 10
+	psqCfg.MaxConnLifetime = time.Hour
+
 	var dbPool *pgxpool.Pool
-	var err error
 	for i := 0; i < config.DBConnectionRetries; i++ {
-		dbPool, err = pgxpool.Connect(context.Background(), psqlInfo)
+		dbPool, err = pgxpool.ConnectConfig(context.Background(), psqCfg)
 
 		if err == nil {
 			err = dbPool.Ping(context.Background())

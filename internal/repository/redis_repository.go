@@ -34,7 +34,6 @@ func (r *RedisRepository) CacheToken(username, token string) error {
 
 	err := r.Client.Set(ctx, "auth_token:"+username, token, 72*time.Hour).Err()
 	if err != nil {
-		log.Printf("Error token saved in Redis: %v", err)
 		return err
 	}
 	return nil
@@ -48,7 +47,6 @@ func (r *RedisRepository) GetCachedToken(username string) (string, error) {
 	if err == redis.Nil {
 		return "", err
 	} else if err != nil {
-		log.Printf("Error get token is failed: %v", err)
 		return "", err
 	}
 	return token, nil

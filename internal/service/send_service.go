@@ -5,7 +5,6 @@ import (
 	"avitoTT/internal/repository"
 	"avitoTT/openapi/models"
 	"context"
-	"log"
 )
 
 type SendService interface {
@@ -20,7 +19,6 @@ func NewSendService(repo repository.SendRepositoryImpl) *SendServiceImpl {
 }
 
 func (s *SendServiceImpl) SendCoin(ctx context.Context, req models.SendCoinRequest, username string) error {
-	log.Println("Service: SendCoin")
 
 	if req.ToUser == username {
 		return handle_errors.ErrSendHimself

@@ -3,7 +3,6 @@ package service
 import (
 	"avitoTT/internal/repository"
 	"avitoTT/openapi/models"
-	"log"
 )
 
 type InfoService interface {
@@ -18,8 +17,6 @@ func NewInfoService(repo repository.InfoRepositoryImpl) *InfoServiceImpl {
 }
 
 func (s *InfoServiceImpl) GetUserInfo(username string) (models.InfoResponse, error) {
-	log.Println("Service: GetUserInfo")
-
 	var response models.InfoResponse
 
 	userID, balance, err := s.InfoRepository.GetUserIDAndBalance(username)

@@ -4,7 +4,6 @@ import (
 	handle_errors "avitoTT/internal/errors"
 	"avitoTT/internal/service"
 	"avitoTT/openapi/models"
-	"log"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -12,7 +11,6 @@ import (
 
 // ApiAuthPost - Аутентификация и получение JWT-токена. При первой аутентификации пользователь создается автоматически.
 func (c *Container) ApiAuthPost(ctx echo.Context) error {
-	log.Println("Handlers: ApiAuthPost")
 	var req models.AuthRequest
 
 	if err := ctx.Bind(&req); err != nil {
@@ -29,7 +27,6 @@ func (c *Container) ApiAuthPost(ctx echo.Context) error {
 
 	response, err := c.AuthService.Authenticate(req)
 	if err != nil {
-		log.Println(err)
 		status, errResp := handle_errors.Error(err, "Unknown server error")
 		return ctx.JSON(status, errResp)
 	}
@@ -41,8 +38,6 @@ func (c *Container) ApiAuthPost(ctx echo.Context) error {
 
 // ApiBuyItemGet - Купить предмет за монеты.
 func (c *Container) ApiBuyItemGet(ctx echo.Context) error {
-	log.Println("Handlers: ApiBuyItemGet")
-
 	item := ctx.Param("item")
 	if item == "" {
 		return ctx.JSON(http.StatusBadRequest, models.ErrorResponse{
@@ -75,8 +70,6 @@ func (c *Container) ApiBuyItemGet(ctx echo.Context) error {
 
 // ApiInfoGet - Получить информацию о монетах, инвентаре и истории транзаsкций.
 func (c *Container) ApiInfoGet(ctx echo.Context) error {
-	log.Println("Handlers: ApiInfoGet")
-
 	token, err := service.ExtractTokenFromHeader(ctx)
 	if err != nil {
 		return ctx.JSON(http.StatusUnauthorized, models.ErrorResponse{
@@ -102,7 +95,6 @@ func (c *Container) ApiInfoGet(ctx echo.Context) error {
 
 // ApiSendCoinPost - Отправить монеты другому пользователю.
 func (c *Container) ApiSendCoinPost(ctx echo.Context) error {
-	log.Println("Handlers: ApiSendCoinPost")
 	var req models.SendCoinRequest
 
 	token, err := service.ExtractTokenFromHeader(ctx)
