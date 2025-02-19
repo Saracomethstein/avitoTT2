@@ -1,6 +1,7 @@
 package service
 
 import (
+	"avitoTT/internal/config"
 	handle_errors "avitoTT/internal/errors"
 	"avitoTT/internal/repository"
 	"fmt"
@@ -48,11 +49,12 @@ func ExtractTokenFromHeader(ctx echo.Context) (string, error) {
 }
 
 func ExtractUsernameFromToken(tokenStr string) (string, error) {
+	config := config.New()
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte("test_secret_key"), nil
+		return []byte(config.JWTSecretKey), nil
 	})
 
 	if err != nil {

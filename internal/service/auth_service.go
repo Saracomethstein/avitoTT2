@@ -1,6 +1,7 @@
 package service
 
 import (
+	"avitoTT/internal/config"
 	handle_errors "avitoTT/internal/errors"
 	"avitoTT/internal/repository"
 	"avitoTT/openapi/models"
@@ -48,10 +49,11 @@ func (s *AuthServiceImpl) Authenticate(req models.AuthRequest) (models.AuthRespo
 }
 
 func generateToken(username string) (string, error) {
+	config := config.New()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": username,
 		"exp":      time.Now().Add(time.Hour * 72).Unix(),
 	})
 
-	return token.SignedString([]byte("test_secret_key"))
+	return token.SignedString([]byte(config.JWTSecretKey))
 }
