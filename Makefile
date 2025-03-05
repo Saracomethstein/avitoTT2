@@ -27,9 +27,9 @@ docker-build:
 	@echo "==> Building Docker containers..."
 	docker compose build --no-cache
 
-docker-up: docker-build
+docker-up:
 	@echo "==> Starting Docker containers..."
-	docker compose up
+	docker compose up --build
 
 docker-down:
 	@echo "==> Stopping Docker containers..."

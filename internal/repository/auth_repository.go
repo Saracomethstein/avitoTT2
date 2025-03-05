@@ -48,3 +48,37 @@ func (r *AuthRepositoryImpl) Authenticate(req models.AuthRequest) error {
 
 	return nil
 }
+
+func (r *AuthRepositoryImpl) CheckUserExists(req models.AuthRequest) (string, error) {
+	var password string
+
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	err := r.DB.QueryRow(ctx, `SELECT password FROM users WHERE username = $1`, req.Username).Scan(&password)
+
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) || errors.As(err, &pgx.ErrNoRows) {
+			return "", handle_errors.ErrUserNotFound
+		}
+		return "", handle_errors.ErrDatabaseIssue
+	}
+
+	return password, nil
+}
+
+func (r *AuthRepositoryImpl) InsertUser(req models.AuthRequest) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	_, err := r.DB.Exec(ctx,
+		`INSERT INTO users (username, password)
+	VALUES ($1, $2)
+	ON CONFLICT (username) DO NOTHING`, req.Username, req.Password)
+
+	if err != nil {
+		return handle_errors.ErrDatabaseIssue
+	}
+
+	return nil
+}

@@ -5,6 +5,7 @@ import (
 	handle_errors "avitoTT/internal/errors"
 	"avitoTT/internal/repository"
 	"avitoTT/openapi/models"
+	"errors"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -17,26 +18,38 @@ type AuthService interface {
 type AuthServiceImpl struct {
 	AuthRepository  repository.AuthRepositoryImpl
 	RedisRepository repository.RedisRepository
+	JWTSecretKey    []byte
 }
 
 func NewAuthService(repo repository.AuthRepositoryImpl, redisRepo repository.RedisRepository) *AuthServiceImpl {
+	config := config.New()
 	return &AuthServiceImpl{
 		AuthRepository:  repo,
 		RedisRepository: redisRepo,
+		JWTSecretKey:    []byte(config.JWTSecretKey),
 	}
 }
 
 func (s *AuthServiceImpl) Authenticate(req models.AuthRequest) (models.AuthResponse, error) {
-	err := s.AuthRepository.Authenticate(req)
-	if err != nil {
-		return models.AuthResponse{}, err
+	password, err := s.AuthRepository.CheckUserExists(req)
+
+	switch {
+	case errors.Is(err, handle_errors.ErrUserNotFound):
+		if err := s.AuthRepository.InsertUser(req); err != nil {
+			return models.AuthResponse{}, err
+		}
+	case err != nil:
+		return models.AuthResponse{}, handle_errors.ErrDatabaseIssue
+
+	case password != req.Password:
+		return models.AuthResponse{}, handle_errors.ErrInvalidCredentials
 	}
 
 	if token, err := s.RedisRepository.GetCachedToken(req.Username); err == nil {
 		return models.AuthResponse{Token: token}, nil
 	}
 
-	tokenString, err := generateToken(req.Username)
+	tokenString, err := s.generateToken(req.Username)
 	if err != nil {
 		return models.AuthResponse{}, handle_errors.ErrDatabaseIssue
 	}
@@ -48,12 +61,11 @@ func (s *AuthServiceImpl) Authenticate(req models.AuthRequest) (models.AuthRespo
 	return models.AuthResponse{Token: tokenString}, nil
 }
 
-func generateToken(username string) (string, error) {
-	config := config.New()
+func (s *AuthServiceImpl) generateToken(username string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": username,
 		"exp":      time.Now().Add(time.Hour * 72).Unix(),
 	})
 
-	return token.SignedString([]byte(config.JWTSecretKey))
+	return token.SignedString(s.JWTSecretKey)
 }
